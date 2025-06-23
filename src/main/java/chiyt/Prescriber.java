@@ -6,6 +6,11 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import chiyt.diagnosis.AttractiveRule;
+import chiyt.diagnosis.COVID19Rule;
+import chiyt.diagnosis.DiagnosisRule;
+import chiyt.diagnosis.SleepApneaRule;
+
 public class Prescriber {
     private List<DiagnosisRule> diagnosisRules = new ArrayList<>();
     private BlockingQueue<DiagnosisRequest> requestQueue = new LinkedBlockingQueue<>();

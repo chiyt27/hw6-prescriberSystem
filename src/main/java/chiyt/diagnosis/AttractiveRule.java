@@ -1,7 +1,10 @@
-package chiyt;
+package chiyt.diagnosis;
 
 import java.util.Arrays;
 import java.util.List;
+
+import chiyt.Patient;
+import chiyt.Prescription;
 
 public class AttractiveRule implements DiagnosisRule {
     

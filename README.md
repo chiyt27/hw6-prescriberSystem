@@ -46,7 +46,7 @@ PrescriberFacade facade = new PrescriberFacade();
 
 // 執行診斷（最簡化版本）
 List<String> symptoms = Arrays.asList("sneeze", "headache", "cough");
-boolean result = facade.performDiagnosis("Alice Johnson", symptoms);
+boolean result = facade.performDiagnosis("A123456789", symptoms);
 ```
 
 ### 完整使用
@@ -56,7 +56,7 @@ boolean result = facade.performDiagnosis("Alice Johnson", symptoms);
 boolean result = facade.performDiagnosis(
     "src/main/resources/patientData.json",    // 病患資料檔案
     "src/main/resources/supportedDiseases.txt", // 支援疾病檔案
-    "Alice Johnson",                          // 病患姓名
+    "A123456789",                          // 病患id
     Arrays.asList("sneeze", "headache", "cough"), // 症狀
     "diagnosis_result.json",                  // 輸出檔案
     "json"                                    // 輸出格式 (json/csv)

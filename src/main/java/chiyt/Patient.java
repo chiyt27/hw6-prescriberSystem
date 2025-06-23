@@ -61,12 +61,6 @@ public class Patient {
     public List<Case> getCases() { return cases; }
     public void setCases(List<Case> cases) { this.cases = cases; }
 
-    // Helper methods
-    public float getBMI() {
-        if (height <= 0) return 0;
-        return weight / ((height / 100) * (height / 100));
-    }
-
     public void addCase(Case newCase) {
         this.cases.add(newCase);
     }
@@ -80,7 +74,6 @@ public class Patient {
                 ", age=" + age +
                 ", height=" + height +
                 ", weight=" + weight +
-                ", bmi=" + String.format("%.2f", getBMI()) +
                 ", cases=" + cases.size() +
                 '}';
     }

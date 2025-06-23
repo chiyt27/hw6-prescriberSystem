@@ -28,12 +28,12 @@ public class Case {
     public LocalDateTime getCaseTime() { return caseTime; }
     public void setCaseTime(LocalDateTime caseTime) { this.caseTime = caseTime; }
 
-    @Override
-    public String toString() {
-        return "Case{" +
-                "symptoms=" + symptoms +
-                ", prescription=" + prescription +
-                ", caseTime=" + caseTime +
-                '}';
-    }
+    // @Override
+    // public String toString() {
+    //     return "Case{" +
+    //             "symptoms=" + symptoms +
+    //             ", prescription=" + prescription +
+    //             ", caseTime=" + caseTime +
+    //             '}';
+    // }
 } 

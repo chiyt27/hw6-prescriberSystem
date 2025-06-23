@@ -1,6 +1,9 @@
-package chiyt;
+package chiyt.diagnosis;
 
 import java.util.List;
+
+import chiyt.Patient;
+import chiyt.Prescription;
 
 public interface DiagnosisRule {
     /**
@@ -16,10 +19,6 @@ public interface DiagnosisRule {
      * @return 對應的處方
      */
     Prescription generatePrescription();
-    
-    /**
-     * 獲取規則支援的疾病名稱
-     * @return 疾病名稱
-     */
+
     String getSupportedDisease();
 } 

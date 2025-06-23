@@ -1,84 +1,39 @@
 package chiyt;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+/** 
+ * B1 模組的維護者會使用 PatientDatabase 物件來查詢病患資料和添加病患的新病例
+*/
 public class PatientDatabase {
     private Map<String, Patient> patients = new HashMap<>();
-    
-    public PatientDatabase() {}
-    
-    /**
-     * 從JSON檔案載入病患資料
-     * @param patients 病患列表
-     */
-    public void loadPatients(List<Patient> patients) {
+
+    public void readPatientsFromJson(String filePath) throws IOException {
+        String jsonContent = new String(Files.readAllBytes(Paths.get(filePath)));
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        List<Patient> patients = objectMapper.readValue(jsonContent, new TypeReference<List<Patient>>() {});
+
         for (Patient patient : patients) {
             this.patients.put(patient.getId(), patient);
         }
     }
-    
-    /**
-     * 根據身分證字號查詢病患
-     * @param id 身分證字號
-     * @return 病患資料，如果不存在返回null
-     */
+
     public Patient getPatient(String id) {
         return patients.get(id);
     }
-    
-    /**
-     * 根據姓名查詢病患
-     * @param name 病患姓名
-     * @return 病患資料，如果不存在返回null
-     */
-    public Patient getPatientByName(String name) {
-        for (Patient patient : patients.values()) {
-            if (patient.getName().equals(name)) {
-                return patient;
-            }
-        }
-        return null;
-    }
-    
-    /**
-     * 添加病患的新病例
-     * @param patientId 病患身分證字號
-     * @param newCase 新病例
-     * @return 是否成功添加
-     */
-    public boolean addCase(String patientId, Case newCase) {
-        Patient patient = patients.get(patientId);
-        if (patient != null) {
+
+    public void addCase(String id, Case newCase) {
+        Patient patient = getPatient(id);
+        if (patient != null)
             patient.addCase(newCase);
-            return true;
-        }
-        return false;
-    }
-    
-    /**
-     * 獲取所有病患
-     * @return 病患列表
-     */
-    public List<Patient> getAllPatients() {
-        return List.copyOf(patients.values());
-    }
-    
-    /**
-     * 檢查病患是否存在
-     * @param id 身分證字號
-     * @return 是否存在
-     */
-    public boolean containsPatient(String id) {
-        return patients.containsKey(id);
-    }
-    
-    /**
-     * 獲取病患數量
-     * @return 病患數量
-     */
-    public int getPatientCount() {
-        return patients.size();
     }
 } 
