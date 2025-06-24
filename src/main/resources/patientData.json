@@ -6,7 +6,18 @@
         "age": 25,
         "height": 165.4,
         "weight": 55.2,
-        "cases": ["Flu", "Allergy"]
+        "cases": [
+            {
+                "symptoms": ["fever", "cough"],
+                "prescription": {
+                    "name": "感冒藥",
+                    "potentialDisease": "普通感冒",
+                    "medicines": ["退燒藥", "止咳糖漿"],
+                    "usage": "每日三次，飯後服用"
+                },
+                "caseTime": "2024-01-15T10:30:00"
+            }
+        ]
     },
     {
         "id": "B187654321",
@@ -15,7 +26,7 @@
         "age": 40,
         "height": 180.2,
         "weight": 75.8,
-        "cases": ["Diabetes"]
+        "cases": []
     },
     {
         "id": "C156789123",
@@ -24,61 +35,18 @@
         "age": 60,
         "height": 170.0,
         "weight": 80.5,
-        "cases": ["Hypertension", "Arthritis"]
-    },
-    {
-        "id": "D221654987",
-        "name": "Diana Miller",
-        "gender": "female",
-        "age": 35,
-        "height": 160.3,
-        "weight": 62.1,
-        "cases": ["Asthma"]
-    },
-    {
-        "id": "E189123456",
-        "name": "Edward Wilson",
-        "gender": "male",
-        "age": 50,
-        "height": 175.5,
-        "weight": 85.0,
-        "cases": ["Heart Disease"]
-    },
-    {
-        "id": "F254987321",
-        "name": "Fiona Davis",
-        "gender": "female",
-        "age": 28,
-        "height": 158.7,
-        "weight": 50.3,
-        "cases": ["Migraine"]
-    },
-    {
-        "id": "G123789456",
-        "name": "George Harris",
-        "gender": "male",
-        "age": 70,
-        "height": 165.0,
-        "weight": 70.0,
-        "cases": ["Cancer", "Kidney Disease"]
-    },
-    {
-        "id": "H287321654",
-        "name": "Hannah Moore",
-        "gender": "female",
-        "age": 45,
-        "height": 162.5,
-        "weight": 68.4,
-        "cases": ["Thyroid Disorder"]
-    },
-    {
-        "id": "I456123789",
-        "name": "Ian Taylor",
-        "gender": "male",
-        "age": 33,
-        "height": 178.2,
-        "weight": 72.6,
-        "cases": ["Back Pain"]
+        "cases": [
+            {
+                "symptoms": ["高血壓症狀", "關節疼痛"],
+                "prescription": {
+                    "name": "慢性病處方籤",
+                    "potentialDisease": "高血壓合併關節炎",
+                    "medicines": ["降血壓藥", "消炎止痛藥"],
+                    "usage": "每日一次，早餐後服用"
+                },
+                "caseTime": "2024-01-10T09:00:00"
+            }
+        ]
     },
     {
         "id": "J221987654",
@@ -87,6 +55,17 @@
         "age": 22,
         "height": 155.0,
         "weight": 48.0,
-        "cases": ["Cold", "Skin Rash"]
+        "cases": [
+            {
+                "symptoms": ["snore", "tired"],
+                "prescription": {
+                    "name": "打呼抑制劑",
+                    "potentialDisease": "睡眠呼吸中止症（專業學名：SleepApneaSyndrome）",
+                    "medicines": ["一捲膠帶"],
+                    "usage": "睡覺時，撕下兩塊膠帶，將兩塊膠帶交錯黏在關閉的嘴巴上，就不會打呼了。"
+                },
+                "caseTime": "2024-02-20T14:15:00"
+            }
+        ]
     }
 ]
