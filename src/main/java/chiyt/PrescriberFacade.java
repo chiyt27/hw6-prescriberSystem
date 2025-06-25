@@ -3,21 +3,19 @@ package chiyt;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import chiyt.diagnosis.AttractiveRule;
+import chiyt.diagnosis.COVID19Rule;
+import chiyt.diagnosis.DiagnosisRule;
+import chiyt.diagnosis.SleepApneaRule;
+
 public class PrescriberFacade {
-    private PatientDatabase patientDatabase;
-    private Prescriber prescriber;
-    // private PatientReader patientReader;
-    
-    public PrescriberFacade() {
-        this.patientDatabase = new PatientDatabase();
-        this.prescriber = new Prescriber(patientDatabase);
-        // this.patientReader = new PatientReader();
-    }
+
+    public PrescriberFacade() {}
     
     /**
      * 執行完整的診斷流程
@@ -34,12 +32,12 @@ public class PrescriberFacade {
                                    String outputFile, String outputFormat) {
         try {
             // 1. 載入病患資料
-            // List<Patient> patients = patientReader.readPatientsFromJson(patientDataFile);
+            PatientDatabase patientDatabase = new PatientDatabase();
             patientDatabase.readPatientsFromJson(patientDataFile);
-            // patientDatabase.loadPatients(patients);
 
-            // 2. 載入支援的疾病（可選，目前使用預設規則）
-            loadSupportedDiseases(supportedDiseasesFile);
+            // 2. 載入支援的疾病
+            List<DiagnosisRule> supportedDiseases = loadSupportedDiseases(supportedDiseasesFile);
+            Prescriber prescriber = new Prescriber(patientDatabase, supportedDiseases);
             
             // 3. 查找病患
             Patient patient = patientDatabase.getPatient(patientId);
@@ -105,33 +103,24 @@ public class PrescriberFacade {
         );
     }
 
-    /**
-     * 載入支援的疾病列表（目前為預留功能）
-     * @param filename 疾病檔案名稱
-     */
-    private void loadSupportedDiseases(String filename) {
+    private List<DiagnosisRule> loadSupportedDiseases(String filename) {
+        List<DiagnosisRule> allDiagnosisRules = new ArrayList<>();
+        allDiagnosisRules.add(new COVID19Rule());
+        allDiagnosisRules.add(new AttractiveRule());
+        allDiagnosisRules.add(new SleepApneaRule());
+        List<DiagnosisRule> activeDiagnosisRules = new ArrayList<>();
         try {
-            List<String> diseases = Files.readAllLines(Paths.get(filename));
-            System.out.println("載入支援的疾病: " + diseases);
-            // 目前使用預設規則，未來可以根據檔案內容動態載入規則
+
+            List<String> diseasesStr = Files.readAllLines(Paths.get(filename));
+            for (DiagnosisRule rule : allDiagnosisRules) {
+                if (diseasesStr.contains(rule.getSupportedDisease())) {
+                    activeDiagnosisRules.add(rule);
+                } else {
+                }
+            }
         } catch (IOException e) {
             System.err.println("載入支援疾病檔案時發生錯誤: " + e.getMessage());
         }
-    }
-    
-    /**
-     * 獲取病患資料庫
-     * @return 病患資料庫
-     */
-    public PatientDatabase getPatientDatabase() {
-        return patientDatabase;
-    }
-    
-    /**
-     * 獲取診斷器
-     * @return 診斷器
-     */
-    public Prescriber getPrescriber() {
-        return prescriber;
+        return activeDiagnosisRules;
     }
 }

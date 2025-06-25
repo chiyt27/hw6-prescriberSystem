@@ -6,10 +6,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import chiyt.diagnosis.AttractiveRule;
-import chiyt.diagnosis.COVID19Rule;
 import chiyt.diagnosis.DiagnosisRule;
-import chiyt.diagnosis.SleepApneaRule;
 
 public class Prescriber {
     private List<DiagnosisRule> diagnosisRules = new ArrayList<>();
@@ -19,20 +16,9 @@ public class Prescriber {
     private DiagnosisCallback callback;
     private PatientDatabase patientDatabase;
     
-    public Prescriber(PatientDatabase patientDatabase) {
+    public Prescriber(PatientDatabase patientDatabase, List<DiagnosisRule> supportedDiseases) {
         this.patientDatabase = patientDatabase;
-        // 添加預設的診斷規則
-        addDiagnosisRule(new COVID19Rule());
-        addDiagnosisRule(new AttractiveRule());
-        addDiagnosisRule(new SleepApneaRule());
-    }
-    
-    /**
-     * 添加診斷規則
-     * @param rule 診斷規則
-     */
-    public void addDiagnosisRule(DiagnosisRule rule) {
-        diagnosisRules.add(rule);
+        this.diagnosisRules = new ArrayList<>(supportedDiseases);
     }
     
     /**
@@ -103,7 +89,7 @@ public class Prescriber {
                 System.err.println("病患不存在: " + request.getPatientId());
                 return;
             }
-            
+
             // 尋找匹配的診斷規則
             Prescription prescription = null;
             for (DiagnosisRule rule : diagnosisRules) {
@@ -112,7 +98,7 @@ public class Prescriber {
                     break;
                 }
             }
-            
+
             // 如果沒有匹配的規則，生成預設處方
             if (prescription == null) {
                 prescription = new Prescription(
@@ -121,12 +107,12 @@ public class Prescriber {
                     List.of("維他命C"),
                     "請多休息，多喝水。"
                 );
+            } else {
+                // 有符合的才創建新病例並添加到資料庫
+                Case newCase = new Case(request.getSymptoms(), prescription);
+                patientDatabase.addCase(request.getPatientId(), newCase);
             }
-            
-            // 創建新病例並添加到資料庫
-            Case newCase = new Case(request.getSymptoms(), prescription);
-            patientDatabase.addCase(request.getPatientId(), newCase);
-            
+
             // 調用回調
             if (callback != null) {
                 callback.onDiagnosisComplete(patient, request.getSymptoms(), prescription);
