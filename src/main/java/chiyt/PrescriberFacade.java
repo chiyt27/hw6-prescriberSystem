@@ -47,8 +47,9 @@ public class PrescriberFacade {
             }
             
             // 4. 設置回調來處理診斷結果
-            CountDownLatch latch = new CountDownLatch(1);
-            final boolean[] success = {false};
+            prescriber.startDiagnosisService();
+            // CountDownLatch latch = new CountDownLatch(1);
+            // final boolean[] success = {false};
             
             prescriber.setDiagnosisCallback((p, s, prescription) -> {
                 try {
