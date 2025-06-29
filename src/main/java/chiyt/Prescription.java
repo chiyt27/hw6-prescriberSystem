@@ -22,6 +22,11 @@ public class Prescription {
 
     // 原有的建構子
     public Prescription(String name, String potentialDisease, List<String> medicines, String usage) {
+        validateName(name);
+        validatePotentialDisease(potentialDisease);
+        validateMedicines(medicines);
+        validateUsage(usage);
+
         this.name = name;
         this.potentialDisease = potentialDisease;
         this.medicines = medicines;
@@ -30,16 +35,9 @@ public class Prescription {
     
     // Getters and Setters
     public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-    
     public String getPotentialDisease() { return potentialDisease; }
-    public void setPotentialDisease(String potentialDisease) { this.potentialDisease = potentialDisease; }
-    
     public List<String> getMedicines() { return medicines; }
-    public void setMedicines(List<String> medicines) { this.medicines = medicines; }
-    
     public String getUsage() { return usage; }
-    public void setUsage(String usage) { this.usage = usage; }
 
     // @Override
     // public String toString() {
@@ -50,4 +48,37 @@ public class Prescription {
     // 			", usage='" + usage + '\'' +
     // 			'}';
     // }
+
+    // Validation method
+    private void validateName(String name) {
+        if (name == null || name.length() < 4 || name.length() > 30) {
+            throw new IllegalArgumentException("處方名稱長度必須在4-30字元之間");
+        }
+    }
+    
+    private void validatePotentialDisease(String disease) {
+        if (disease == null || disease.length() < 3 || disease.length() > 100) {
+            throw new IllegalArgumentException("潛在疾病長度必須在3-100字元之間");
+        }
+    }
+    
+    private void validateMedicines(List<String> medicines) {
+        if (medicines == null || medicines.isEmpty()) {
+            throw new IllegalArgumentException("藥物清單不能為空");
+        }
+        for (String medicine : medicines) {
+            if (medicine == null || medicine.length() < 3 || medicine.length() > 30) {
+                throw new IllegalArgumentException("藥物名稱長度必須在3-30字元之間");
+            }
+        }
+    }
+    
+    private void validateUsage(String usage) {
+        if (usage == null) {
+            usage = "";
+        }
+        if (usage.length() > 1000) {
+            throw new IllegalArgumentException("使用方法長度不能超過1000字元");
+        }
+    }
 }

@@ -27,7 +27,6 @@ public class Patient {
     @JsonProperty("cases")
     private List<Case> cases = new ArrayList<>();
 
-    // Constructors
     public Patient() {}
 
     public Patient(String id, String name, String gender, int age, float height, float weight) {
@@ -39,42 +38,28 @@ public class Patient {
         this.weight = weight;
     }
 
-    // Getters and Setters
     public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
-
     public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-
     public String getGender() { return gender; }
-    public void setGender(String gender) { this.gender = gender; }
-
     public int getAge() { return age; }
-    public void setAge(int age) { this.age = age; }
-
     public float getHeight() { return height; }
-    public void setHeight(float height) { this.height = height; }
-
     public float getWeight() { return weight; }
-    public void setWeight(float weight) { this.weight = weight; }
-
     public List<Case> getCases() { return cases; }
-    public void setCases(List<Case> cases) { this.cases = cases; }
 
     public void addCase(Case newCase) {
         this.cases.add(newCase);
     }
 
-    @Override
-    public String toString() {
-        return "Patient{" +
-                "id='" + id + '\'' +
-                ", name='" + name + '\'' +
-                ", gender='" + gender + '\'' +
-                ", age=" + age +
-                ", height=" + height +
-                ", weight=" + weight +
-                ", cases=" + cases.size() +
-                '}';
-    }
+    // @Override
+    // public String toString() {
+    //     return "Patient{" +
+    //             "id='" + id + '\'' +
+    //             ", name='" + name + '\'' +
+    //             ", gender='" + gender + '\'' +
+    //             ", age=" + age +
+    //             ", height=" + height +
+    //             ", weight=" + weight +
+    //             ", cases=" + cases.size() +
+    //             '}';
+    // }
 }
