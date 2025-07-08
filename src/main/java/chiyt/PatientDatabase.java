@@ -17,7 +17,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 public class PatientDatabase {
     private Map<String, Patient> patients = new HashMap<>();
 
-    public void readPatientsFromJson(String filePath) throws IOException {
+    public void loadPatientsFromJson(String filePath) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());// 註冊 JavaTimeModule 來處理 LocalDateTime
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);// 忽略未知屬性，避免 JSON 結構不一致時出錯
@@ -35,7 +35,7 @@ public class PatientDatabase {
         return patients.get(id);
     }
 
-    public void addCase(String id, Case newCase) {
+    public void addCaseToPatient(String id, Case newCase) {
         Patient patient = getPatient(id);
         if (patient != null)
             patient.addCase(newCase);

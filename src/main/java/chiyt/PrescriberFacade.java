@@ -14,6 +14,7 @@ import chiyt.diagnosis.DiagnosisRule;
 import chiyt.diagnosis.SleepApneaRule;
 
 public class PrescriberFacade {
+    private PatientDatabase database = new PatientDatabase();
 
     public PrescriberFacade() {}
     
@@ -32,15 +33,14 @@ public class PrescriberFacade {
                                    String outputFile, String outputFormat) {
         try {
             // 1. 載入病患資料
-            PatientDatabase patientDatabase = new PatientDatabase();
-            patientDatabase.readPatientsFromJson(patientDataFile);
+            database.loadPatientsFromJson(patientDataFile);
 
             // 2. 載入支援的疾病
             List<DiagnosisRule> supportedDiseases = loadSupportedDiseases(supportedDiseasesFile);
-            Prescriber prescriber = new Prescriber(patientDatabase, supportedDiseases);
+            Prescriber prescriber = new Prescriber(database, supportedDiseases);
             
             // 3. 查找病患
-            Patient patient = patientDatabase.getPatient(patientId);
+            Patient patient = database.getPatient(patientId);
             if (patient == null) {
                 System.err.println("找不到病患: " + patientId);
                 return;
@@ -72,7 +72,15 @@ public class PrescriberFacade {
             prescriber.startDiagnosisService();
 
             // 6. 提交診斷請求
-            prescriber.requestDiagnosis(patient.getId(), symptoms);
+            prescriber.requestDiagnosis(patient.getId(), symptoms, (id, symptoms, prescription) -> {
+                System.out.println("\n[回調] 用戶收到診斷結果:");
+                System.out.println("患者ID: " + id);
+                System.out.println("症狀: " + symptoms);
+                System.out.println("處方: " + prescription);
+                
+                // 用戶決定儲存為病例
+                saveDiagnosisAsCase(id, symptoms, prescription);
+            });
             
             // 7. 等待診斷完成（最多等待10秒）
             boolean completed = latch.await(10, TimeUnit.SECONDS);
@@ -123,5 +131,27 @@ public class PrescriberFacade {
             System.err.println("載入支援疾病檔案時發生錯誤: " + e.getMessage());
         }
         return activeDiagnosisRules;
+    }
+
+    public boolean saveDiagnosisAsCase(String patientId, List<String> symptoms, Prescription prescription) {
+        try {
+            Patient patient = database.getPatient(patientId);
+            if (patient == null) {
+                System.err.println("找不到病患: " + patientId);
+                return false;
+            }
+            
+            Case newCase = new Case(symptoms, prescription);
+            database.addCaseToPatient(patientId, newCase);
+            
+            System.out.println("✓ 病例已儲存 - 患者: " + patient.getName() + 
+                             ", 診斷時間: " + newCase.getCaseTime() +
+                             ", 處方: " + prescription.getName());
+            return true;
+            
+        } catch (Exception e) {
+            System.err.println("儲存病例時發生錯誤: " + e.getMessage());
+            return false;
+        }
     }
 }

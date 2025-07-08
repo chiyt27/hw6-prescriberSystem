@@ -14,13 +14,13 @@ public class Prescriber {
     // private Thread diagnosisThread;
     // private AtomicBoolean isRunning = new AtomicBoolean(false);
     // private DiagnosisCallback callback;
-    private PatientDatabase patientDatabase;
+    private PatientDatabase database;
     private final BlockingQueue<DiagnosisRequest> queue = new LinkedBlockingQueue<>();
     private volatile boolean running = false;
     private Thread diagnosisThread;
     
-    public Prescriber(PatientDatabase patientDatabase, List<DiagnosisRule> supportedDiseases) {
-        this.patientDatabase = patientDatabase;
+    public Prescriber(PatientDatabase database, List<DiagnosisRule> supportedDiseases) {
+        this.database = database;
         this.diagnosisRules = new ArrayList<>(supportedDiseases);
     }
     
@@ -89,7 +89,7 @@ public class Prescriber {
      * @param request 診斷請求
      */
     private Prescription diagnose(String patientId, List<String> symptoms) {
-        Patient patient = patientDatabase.getPatient(patientId);
+        Patient patient = database.getPatient(patientId);
         
         if (patient == null) {
             System.err.println("找不到病患: " + patientId);
