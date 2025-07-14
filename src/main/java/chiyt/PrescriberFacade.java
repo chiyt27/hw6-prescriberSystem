@@ -5,8 +5,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import chiyt.diagnosis.AttractiveRule;
 import chiyt.diagnosis.COVID19Rule;
@@ -18,81 +16,127 @@ public class PrescriberFacade {
 
     public PrescriberFacade() {}
     
+    private static Prescriber prescriber;
+    private static boolean isServiceStarted = false;
+
     /**
-     * 執行完整的診斷流程
+     * 執行完整的診斷流程 (非同步)
      * @param patientDataFile 病患資料JSON檔案名稱
      * @param supportedDiseasesFile 支援疾病檔案名稱
-     * @param patientName 病患身份證字號
+     * @param patientId 病患身份證字號
      * @param symptoms 症狀列表
-     * @param outputFile 輸出檔案名稱
+     * @param outputFile 輸出檔案名稱 (可選)
      * @param outputFormat 輸出格式 ("json" 或 "csv")
-     * @return 是否成功完成診斷
      */
     public void performDiagnosis(String patientDataFile, String supportedDiseasesFile, 
                                    String patientId, List<String> symptoms, 
                                    String outputFile, String outputFormat) {
         try {
-            // 1. 載入病患資料
-            database.loadPatientsFromJson(patientDataFile);
-
-            // 2. 載入支援的疾病
-            List<DiagnosisRule> supportedDiseases = loadSupportedDiseases(supportedDiseasesFile);
-            Prescriber prescriber = new Prescriber(database, supportedDiseases);
+            // 1. 初始化系統 (只執行一次)
+            if (!isServiceStarted) {
+                initializeSystem(patientDataFile, supportedDiseasesFile);
+            }
             
-            // 3. 查找病患
+            // 2. 查找病患
             Patient patient = database.getPatient(patientId);
             if (patient == null) {
                 System.err.println("找不到病患: " + patientId);
                 return;
             }
             
-            // 4. 設置回調來處理診斷結果
-            prescriber.startDiagnosisService();
-            // CountDownLatch latch = new CountDownLatch(1);
-            // final boolean[] success = {false};
-            
-            prescriber.setDiagnosisCallback((p, s, prescription) -> {
-                try {
-                    // 輸出診斷結果
-                    if ("json".equalsIgnoreCase(outputFormat)) {
-                        ResultExporter.exportToJson(p, s, prescription, outputFile);
-                    } else if ("csv".equalsIgnoreCase(outputFormat)) {
-                        ResultExporter.exportToCsv(p, s, prescription, outputFile);
-                    } else {
-                        System.err.println("不支援的輸出格式: " + outputFormat);
-                        return;
-                    }
-                    success[0] = true;
-                } finally {
-                    latch.countDown();
-                }
-            });
-
-            // 5. 開始診斷服務
-            prescriber.startDiagnosisService();
-
-            // 6. 提交診斷請求
-            prescriber.requestDiagnosis(patient.getId(), symptoms, (id, symptoms, prescription) -> {
-                System.out.println("\n[回調] 用戶收到診斷結果:");
-                System.out.println("患者ID: " + id);
-                System.out.println("症狀: " + symptoms);
-                System.out.println("處方: " + prescription);
-                
-                // 用戶決定儲存為病例
-                saveDiagnosisAsCase(id, symptoms, prescription);
+            // 3. 提交非同步診斷請求
+            System.out.println("提交診斷請求 - 患者: " + patient.getName() + ", 症狀: " + symptoms);
+            prescriber.requestDiagnosis(patient.getId(), symptoms, (id, symptomList, prescription) -> {
+                // 診斷完成的回調處理
+                handleDiagnosisResult(id, symptomList, prescription, outputFile, outputFormat);
             });
             
-            // 7. 等待診斷完成（最多等待10秒）
-            boolean completed = latch.await(10, TimeUnit.SECONDS);
+            System.out.println("診斷請求已提交，請等待診斷完成通知...");
+            
+        } catch (Exception e) {
+            System.err.println("提交診斷請求時發生錯誤: " + e.getMessage());
+        }
+    }
 
-            // 8. 停止診斷服務
-            prescriber.stopDiagnosisService();
+    /**
+     * 初始化診斷系統
+     */
+    private void initializeSystem(String patientDataFile, String supportedDiseasesFile) {
+        try {
+            // 載入病患資料
+            database.loadPatientsFromJson(patientDataFile);
 
-            if (!completed) {
-                System.err.println("診斷超時");
+            // 載入支援的疾病
+            List<DiagnosisRule> supportedDiseases = loadSupportedDiseases(supportedDiseasesFile);
+            prescriber = new Prescriber(database, supportedDiseases);
+            
+            // 啟動診斷服務
+            prescriber.startDiagnosisService();
+            isServiceStarted = true;
+            
+            System.out.println("診斷系統已初始化完成");
+        } catch (Exception e) {
+            System.err.println("初始化診斷系統時發生錯誤: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 處理診斷結果
+     */
+    private void handleDiagnosisResult(String patientId, List<String> symptoms, 
+                                     Prescription prescription, String outputFile, String outputFormat) {
+        System.out.println("\n=== 診斷完成通知 ===");
+        System.out.println("患者ID: " + patientId);
+        System.out.println("症狀: " + symptoms);
+        if (prescription != null) {
+            System.out.println("診斷結果: " + prescription.getName());
+            System.out.println("潛在疾病: " + prescription.getPotentialDisease());
+        } else {
+            System.out.println("診斷結果: 無法診斷出對應疾病");
+        }
+        
+        // 儲存為病例
+        if (prescription != null) {
+            saveDiagnosisAsCase(patientId, symptoms, prescription);
+        }
+        
+        // 輸出到檔案 (如果指定)
+        if (outputFile != null && outputFormat != null && prescription != null) {
+            exportDiagnosisResult(patientId, symptoms, prescription, outputFile, outputFormat);
+        }
+        
+        System.out.println("==================\n");
+    }
+
+    /**
+     * 輸出診斷結果到檔案
+     */
+    private void exportDiagnosisResult(String patientId, List<String> symptoms, 
+                                     Prescription prescription, String outputFile, String outputFormat) {
+        try {
+            Patient patient = database.getPatient(patientId);
+            if ("json".equalsIgnoreCase(outputFormat)) {
+                ResultExporter.exportToJson(patient, symptoms, prescription, outputFile);
+                System.out.println("✓ 診斷結果已輸出到: " + outputFile + " (JSON格式)");
+            } else if ("csv".equalsIgnoreCase(outputFormat)) {
+                ResultExporter.exportToCsv(patient, symptoms, prescription, outputFile);
+                System.out.println("✓ 診斷結果已輸出到: " + outputFile + " (CSV格式)");
+            } else {
+                System.err.println("不支援的輸出格式: " + outputFormat);
             }
         } catch (Exception e) {
-            System.err.println("執行診斷時發生錯誤: " + e.getMessage());
+            System.err.println("輸出診斷結果時發生錯誤: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 停止診斷服務
+     */
+    public static void stopService() {
+        if (prescriber != null) {
+            prescriber.stopDiagnosisService();
+            isServiceStarted = false;
+            System.out.println("診斷服務已停止");
         }
     }
 
@@ -100,8 +144,8 @@ public class PrescriberFacade {
      * 簡化版本的診斷方法 - 使用預設檔案名稱
      * @param patientId 病患身份證字號
      * @param symptoms 症狀列表
-     * @param outputFile 輸出檔案名稱
-     * @param outputFormat 輸出格式
+     * @param outputFile 輸出檔案名稱 (可選)
+     * @param outputFormat 輸出格式 (可選)
      */
     public void performDiagnosis(String patientId, List<String> symptoms, 
                                    String outputFile, String outputFormat) {
@@ -110,6 +154,15 @@ public class PrescriberFacade {
             "src/main/resources/supportedDiseases.txt",
             patientId, symptoms, outputFile, outputFormat
         );
+    }
+
+    /**
+     * 最簡化版本 - 僅診斷，不輸出檔案
+     * @param patientId 病患身份證字號
+     * @param symptoms 症狀列表
+     */
+    public void performDiagnosis(String patientId, List<String> symptoms) {
+        performDiagnosis(patientId, symptoms, null, null);
     }
 
     private List<DiagnosisRule> loadSupportedDiseases(String filename) {
@@ -144,7 +197,7 @@ public class PrescriberFacade {
             Case newCase = new Case(symptoms, prescription);
             database.addCaseToPatient(patientId, newCase);
             
-            System.out.println("✓ 病例已儲存 - 患者: " + patient.getName() + 
+            System.out.println("病例已儲存 - 患者: " + patient.getName() + 
                              ", 診斷時間: " + newCase.getCaseTime() +
                              ", 處方: " + prescription.getName());
             return true;

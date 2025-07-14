@@ -48,7 +48,7 @@ public class ResultExporter {
 
             // DiagnosisResult result = new DiagnosisResult(patient, symptoms, prescription);
             mapper.writeValue(new java.io.File(filename), result);
-            System.out.println("診斷結果已輸出到: " + filename);
+            // System.out.println("✓ 診斷結果已輸出到: " + filename);
         } catch (IOException e) {
             System.err.println("輸出JSON檔案時發生錯誤: " + e.getMessage());
         }
@@ -84,29 +84,9 @@ public class ResultExporter {
                 prescription.getUsage().replace("\"", "\"\""),
                 LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
             );
-            System.out.println("診斷結果已輸出到: " + filename);
+            // System.out.println("✓ 診斷結果已輸出到: " + filename);
         } catch (IOException e) {
             System.err.println("輸出CSV檔案時發生錯誤: " + e.getMessage());
         }
     }
-
-    // private static class DiagnosisResult {
-    //     private Patient patient;
-    //     private List<String> symptoms;
-    //     private Prescription prescription;
-    //     private String diagnosisTime;
-        
-    //     public DiagnosisResult(Patient patient, List<String> symptoms, Prescription prescription) {
-    //         this.patient = patient;
-    //         this.symptoms = symptoms;
-    //         this.prescription = prescription;
-    //         this.diagnosisTime = java.time.LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-    //     }
-        
-    //     // Getters for JSON serialization
-    //     public Patient getPatient() { return patient; }
-    //     public List<String> getSymptoms() { return symptoms; }
-    //     public Prescription getPrescription() { return prescription; }
-    //     public String getDiagnosisTime() { return diagnosisTime; }
-    // }
 } 
