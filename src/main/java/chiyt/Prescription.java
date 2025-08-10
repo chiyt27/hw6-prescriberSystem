@@ -39,16 +39,6 @@ public class Prescription {
     public List<String> getMedicines() { return medicines; }
     public String getUsage() { return usage; }
 
-    // @Override
-    // public String toString() {
-    // 	return "Prescription{" +
-    // 			"name='" + name + '\'' +
-    // 			", potentialDisease='" + potentialDisease + '\'' +
-    // 			", medicines=" + medicines +
-    // 			", usage='" + usage + '\'' +
-    // 			'}';
-    // }
-
     // Validation method
     private void validateName(String name) {
         if (name == null || name.length() < 4 || name.length() > 30) {

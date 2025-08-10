@@ -26,13 +26,4 @@ public class Case {
     public List<String> getSymptoms() { return symptoms; }
     public Prescription getPrescription() { return prescription; }
     public LocalDateTime getCaseTime() { return caseTime; }
-
-    // @Override
-    // public String toString() {
-    //     return "Case{" +
-    //             "symptoms=" + symptoms +
-    //             ", prescription=" + prescription +
-    //             ", caseTime=" + caseTime +
-    //             '}';
-    // }
 } 

@@ -2,6 +2,7 @@ package chiyt;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,6 +10,7 @@ import java.util.Map;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 /** 
@@ -37,7 +39,26 @@ public class PatientDatabase {
 
     public void addCaseToPatient(String id, Case newCase) {
         Patient patient = getPatient(id);
-        if (patient != null)
+        if (patient != null) {
             patient.addCase(newCase);
+        }
+    }
+    
+    /**
+     * 將病患資料儲存到指定的 JSON 檔案
+     * @param filePath 目標檔案路徑
+     * @throws IOException 檔案寫入錯誤
+     */
+    public void saveToFile(String filePath) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true); // 格式化輸出
+        objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false); // 使用 ISO 格式輸出日期
+        
+        // 轉換為 List 格式寫回檔案
+        List<Patient> patientList = new ArrayList<>(patients.values());
+        objectMapper.writeValue(new File(filePath), patientList);
+        
+        // System.out.println("病患資料已成功寫回檔案: " + filePath);
     }
 } 

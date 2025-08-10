@@ -49,17 +49,4 @@ public class Patient {
     public void addCase(Case newCase) {
         this.cases.add(newCase);
     }
-
-    // @Override
-    // public String toString() {
-    //     return "Patient{" +
-    //             "id='" + id + '\'' +
-    //             ", name='" + name + '\'' +
-    //             ", gender='" + gender + '\'' +
-    //             ", age=" + age +
-    //             ", height=" + height +
-    //             ", weight=" + weight +
-    //             ", cases=" + cases.size() +
-    //             '}';
-    // }
 }
